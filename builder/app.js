@@ -1,5 +1,6 @@
 const path = require("path")
 const request = require("request")
+const rimraf = require("rimraf")
 const { newBuilder } = require("./builder")
 
 const {
@@ -28,10 +29,21 @@ if (!DIST_URI) {
             if (err) {
                 throw err
             }
+            const htmlTemplatePath = path.resolve(__dirname, HTML_TEMPLATE_PATH)
+            const distPath = path.resolve(__dirname, DIST_URI)
+            await new Promise((resolve, reject) => {
+                rimraf(distPath, (err) => {
+                    if (err){
+                        reject(err)
+                        return
+                    }
+                    resolve()
+                })
+            })
             await builder.exportPostingFilesFromHtml(
                 {
-                    htmlTemplatePath: path.resolve(__dirname, HTML_TEMPLATE_PATH),
-                    distUri: path.resolve(__dirname, DIST_URI),
+                    htmlTemplatePath,
+                    distPath,
                 },
                 html,
             )

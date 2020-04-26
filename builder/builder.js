@@ -1,5 +1,6 @@
 const cheerio = require("cheerio")
-const fs = require("fs").promises
+const fs = require("fs")
+const fsp = fs.promises
 const fx = require("mkdir-recursive")
 const path = require("path")
 
@@ -10,7 +11,7 @@ exports.newBuilder = function newBuilder({ logger }) {
         exportPostingFilesFromHtml,
     }
 
-    async function exportPostingFilesFromHtml({ htmlTemplatePath, distUri }, html) {
+    async function exportPostingFilesFromHtml({ htmlTemplatePath, distPath }, html) {
         const htmlTemplate = await loadHtmlTemplate(htmlTemplatePath)
         logger.debug("exporting postings from html to files")
 
@@ -29,7 +30,7 @@ exports.newBuilder = function newBuilder({ logger }) {
                     {
                         htmlTemplate,
                         $head,
-                        distUri,
+                        distPath,
                     },
                     p,
                 )
@@ -41,7 +42,7 @@ exports.newBuilder = function newBuilder({ logger }) {
     }
 
     async function loadHtmlTemplate(templatePath) {
-        const templateStr = await fs.readFile(templatePath, "utf8")
+        const templateStr = await fsp.readFile(templatePath, "utf8")
 
         const headAt = templateStr.indexOf("{{head}}")
         const headLen = "{{head}}".length
@@ -128,26 +129,29 @@ exports.newBuilder = function newBuilder({ logger }) {
         {
             htmlTemplate,
             $head,
-            distUri,
+            distPath,
         },
         posting,
     ) {
         logger.debug(`start writing posting to file [posting.title=${posting.title}]`)
-        const filepath = postingFilePath(distUri, posting)
-        await new Promise((resolve, reject) => {
-            fx.mkdir(filepath.slice(0, filepath.lastIndexOf("/")), function (err) {
-                if (err) {
-                    reject(err)
-                    return
-                }
-                resolve()
+        const filepath = postingFilePath(distPath, posting)
+        const dirname = filepath.slice(0, filepath.lastIndexOf("/"))
+        if(!fs.existsSync(dirname)) {
+            await new Promise((resolve, reject) => {
+                fx.mkdir(dirname, function (err) {
+                    if (err) {
+                        reject(err)
+                        return
+                    }
+                    resolve()
+                })
             })
-        })
-        await fs.writeFile(filepath, postingToHtml({ htmlTemplate, $head }, posting))
+        }
+        await fsp.writeFile(filepath, postingToHtml({ htmlTemplate, $head }, posting))
         logger.debug(`finished writing posting to file [posting.title=${posting.title}]`)
     }
-    function postingFilePath(distUri, p) {
-        return path.resolve(distUri, `${p.uri.slice(1)}.html`)
+    function postingFilePath(distPath, p) {
+        return path.resolve(distPath, `${p.uri.slice(1)}.html`)
     }
     function postingToHtml({ htmlTemplate, $head }, posting) {
         const headInnerHtml = $head.html()
