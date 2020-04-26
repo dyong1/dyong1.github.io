@@ -5,33 +5,32 @@ on:
     - cron: '*/30 * * * *'
 
 jobs:
-  build_index:
-    runs-on: ubuntu-latest
-    steps:
-    - run: curl ${{ secrets.BLOG_GOOGLE_DOCS_URI }} > index.html
-  build_postings:
+  build_postings_and_push:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+
+    - name: Build index.html
+      run: curl ${{ secrets.BLOG_GOOGLE_DOCS_URI }} > index.html
+
     - uses: actions/setup-node@v1
       with:
         node-version: '12.x'
+
     - run: npm ci
       working-directory: builder
-    - run: node app.js
+
+    - name: Build postings
+      run: node app.js
       working-directory: builder
       env:
         BLOG_CONTENTS_URI: ${{ secrets.BLOG_GOOGLE_DOCS_URI }}
         HTML_TEMPLATE_PATH: data/html_template.html
         DIST_URI: ../postings
-  commit_and_push:
-    needs: [build_index, build_postings]
-    runs-on: ubuntu-latest
-    steps:
+
     - uses: stefanzweifel/git-auto-commit-action@v4.1.5
       with:
         commit_message: Publish postings automatically via Github Action
         branch: master
         file_pattern: index.html postings/**/*.html
-        repository: .
 
