@@ -1,0 +1,12 @@
+name: Publish
+
+on:
+  schedule:
+    - cron: 0 * * * *
+  
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    steps:
+    - run: echo test
