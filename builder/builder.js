@@ -10,7 +10,7 @@ exports.newBuilder = function newBuilder({ logger }) {
         exportPostingFilesFromHtml,
     }
 
-    async function exportPostingFilesFromHtml(htmlTemplatePath, html) {
+    async function exportPostingFilesFromHtml({ htmlTemplatePath, distUri }, html) {
         const htmlTemplate = await loadHtmlTemplate(htmlTemplatePath)
         logger.debug("exporting postings from html to files")
 
@@ -26,11 +26,12 @@ exports.newBuilder = function newBuilder({ logger }) {
             logger.info("start writing postings to files")
             await Promise.all(postings.map((p) =>
                 writePostingToFileAsHtml(
-                    p,
                     {
                         htmlTemplate,
                         $head,
-                    }
+                        distUri,
+                    },
+                    p,
                 )
             ))
             logger.info("finished writing postings to files")
@@ -40,7 +41,7 @@ exports.newBuilder = function newBuilder({ logger }) {
     }
 
     async function loadHtmlTemplate(templatePath) {
-        const templateStr = await fs.readFile(path.resolve(__dirname, templatePath), "utf8")
+        const templateStr = await fs.readFile(templatePath, "utf8")
 
         const headAt = templateStr.indexOf("{{head}}")
         const headLen = "{{head}}".length
@@ -104,7 +105,7 @@ exports.newBuilder = function newBuilder({ logger }) {
                 uri,
             })
             currentBegin = nextBegin
-            nextBegin = hh[idx+1]
+            nextBegin = hh[idx + 1]
             idx++
         }
 
@@ -123,9 +124,16 @@ exports.newBuilder = function newBuilder({ logger }) {
         const t = title.toLowerCase().replace(/\s/g, "-")
         return `/${yyyy}/${mm}/${dd}/${t}`
     }
-    async function writePostingToFileAsHtml(posting, { htmlTemplate, $head }) {
+    async function writePostingToFileAsHtml(
+        {
+            htmlTemplate,
+            $head,
+            distUri,
+        },
+        posting,
+    ) {
         logger.debug(`start writing posting to file [posting.title=${posting.title}]`)
-        const filepath = postingFilePath(posting)
+        const filepath = postingFilePath(distUri, posting)
         await new Promise((resolve, reject) => {
             fx.mkdir(filepath.slice(0, filepath.lastIndexOf("/")), function (err) {
                 if (err) {
@@ -135,13 +143,13 @@ exports.newBuilder = function newBuilder({ logger }) {
                 resolve()
             })
         })
-        await fs.writeFile(filepath, postingToHtml({htmlTemplate, $head}, posting))
+        await fs.writeFile(filepath, postingToHtml({ htmlTemplate, $head }, posting))
         logger.debug(`finished writing posting to file [posting.title=${posting.title}]`)
     }
-    function postingFilePath(p) {
-        return path.resolve(__dirname, "dist", `${p.uri.slice(1)}.html`)
+    function postingFilePath(distUri, p) {
+        return path.resolve(distUri, `${p.uri.slice(1)}.html`)
     }
-    function postingToHtml({htmlTemplate, $head}, posting) {
+    function postingToHtml({ htmlTemplate, $head }, posting) {
         const headInnerHtml = $head.html()
         const titleHtml = cheerio.html(posting.titleNode)
         const contentsInnerHtml = cheerio.html(posting.contentNodes)
