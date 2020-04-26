@@ -25,8 +25,9 @@ exports.newBuilder = function newBuilder({ logger }) {
 
         try {
             logger.info("start writing postings to files")
-            await Promise.all(postings.map((p) =>
-                writePostingToFileAsHtml(
+            postings.reduce(async (prevPromise, p) => {
+                await prevPromise
+                return writePostingToFileAsHtml(
                     {
                         htmlTemplate,
                         $head,
@@ -34,7 +35,7 @@ exports.newBuilder = function newBuilder({ logger }) {
                     },
                     p,
                 )
-            ))
+            }, Promise.resolve())
             logger.info("finished writing postings to files")
         } catch (err) {
             throw new Error(`failed to write postings to files: ${err.message}`)
