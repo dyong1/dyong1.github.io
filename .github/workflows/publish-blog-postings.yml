@@ -35,7 +35,7 @@ jobs:
         DIST_URI: ./dist
         USE_HUGO: 1
 
-    - run: mv builder/dist/* hugo/content/blog
+    - run: mv -v builder/dist/* hugo/content/blog/
 
     - uses: peaceiris/actions-hugo@v2
       with:
