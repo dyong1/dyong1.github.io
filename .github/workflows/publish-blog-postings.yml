@@ -32,10 +32,8 @@ jobs:
       env:
         BLOG_CONTENTS_URI: ${{ secrets.BLOG_GOOGLE_DOCS_URI }}
         HTML_TEMPLATE_PATH: data/html_template.html
-        DIST_URI: ./dist
+        DIST_URI: ../hugo/content/blog
         USE_HUGO: 1
-
-    - run: mv -v builder/dist hugo/content/blog
 
     - uses: peaceiris/actions-hugo@v2
       with:
