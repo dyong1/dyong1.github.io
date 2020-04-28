@@ -2,7 +2,11 @@ name: Publish blog postings
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - dev
+      - build-test
 
 jobs:
   build_postings_and_push:
@@ -30,7 +34,9 @@ jobs:
         HTML_TEMPLATE_PATH: data/html_template.html
         DIST_URI: ./dist
 
-    - run: mv builder/dist/* hugo/content/blog/
+    - run: mv builder/dist/* hugo/content/blog
+
+    - run: tree hugo/content/blog
 
     - uses: peaceiris/actions-hugo@v2
       with:
