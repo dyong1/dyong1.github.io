@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        ref: dev
 
     - name: Build index.html
       run: curl ${{ secrets.BLOG_GOOGLE_DOCS_URI }} > index.html
@@ -43,3 +45,4 @@ jobs:
       with:
         deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
         publish_dir: ./hugo/public
+        publish_branch: master
