@@ -1,8 +1,8 @@
 name: Publish blog postings
 
 on:
-  release:
-    types: [published]
+  schedule:
+    - cron: '*/30 * * * *'
 
 jobs:
   build_postings_and_push:
@@ -17,20 +17,27 @@ jobs:
       with:
         node-version: '12.x'
 
-    - run: npm ci
-      working-directory: builder
+    - working-directory: builder
+      run: npm ci
 
     - name: Build postings
-      run: node app.js
       working-directory: builder
+      run: node app.js
       env:
         BLOG_CONTENTS_URI: ${{ secrets.BLOG_GOOGLE_DOCS_URI }}
         HTML_TEMPLATE_PATH: data/html_template.html
-        DIST_URI: ../postings
+        DIST_URI: ./dist
 
-    - uses: stefanzweifel/git-auto-commit-action@v4.1.5
+    - uses: peaceiris/actions-hugo@v2
       with:
-        commit_message: Publish postings automatically via Github Action
-        branch: master
-        file_pattern: index.html postings/**/*.html
+        hugo-version: 'latest'
 
+    - name: Build homepage
+      working-directory: hugo
+      run: hugo --minify
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./hugo/public
