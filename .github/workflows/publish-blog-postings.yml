@@ -33,6 +33,7 @@ jobs:
         BLOG_CONTENTS_URI: ${{ secrets.BLOG_GOOGLE_DOCS_URI }}
         HTML_TEMPLATE_PATH: data/html_template.html
         DIST_URI: ./dist
+        USE_HUGO: 1
 
     - run: mv builder/dist/* hugo/content/blog
 
