@@ -1,0 +1,43 @@
+{{ define "header" }}
+    {{ partial "header" . }}
+{{ end }}
+
+{{ define "main" }}
+    <section id="post">
+        <article>
+            <h1 class="title">{{ .Title }}</h1>
+            <dl class="desc">
+                <dd>{{ .PublishDate.Format "2006-01-02" }}</dd>
+            </dl>
+            {{ .Content }}
+
+        </article>
+
+        {{ if not .Params.meta }}
+            <section class="post-nav">
+                <ul>
+                    {{ with .PrevInSection }}
+                    <li>
+                        <a href="{{.Permalink}}">&gt; Previous post: {{ .Title }}</a>
+                    </li>
+                    {{ end }}
+                    {{ with .NextInSection }}
+                    <li>
+                        <a href="{{.Permalink}}">&gt; Next post: {{ .Title }}</a>
+                    </li>
+                    {{ end }}
+                </ul>
+            </section>
+            {{ if .Site.Params.UtterancesRepo }}
+                {{ partial "utterances" . }}
+            {{ end }}
+            {{ if .Site.DisqusShortname }}
+                {{ partial "disqus" . }}
+            {{ end }}
+        {{ end }}
+    </section>
+{{ end }}
+
+{{ define "footer" }}
+    {{ partial "footer" . }}
+{{ end }}

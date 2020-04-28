@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css');
+
+html,body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  color: #222426;
+}
+
+a, a:link, a:visited, a:active {
+  text-decoration:none;
+  color: #666;
+}
+a:hover {
+  color: #000;
+  transition:color 0.3s ease-in-out;
+}
+
+#header {
+  padding: 30px 0;
+}
+
+#header .nav {
+  display:flex;
+  align-items: center;
+  max-width: 800px;
+  padding: 0 50px;
+  margin: 0 auto;
+}
+#header .nav-home {
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+}
+#header .nav-home img {
+  border-radius: 100%;
+  width:50px;
+}
+#header .nav-home span {
+  font-size: 1.2em;
+  margin-left: 0.5em;
+  font-weight: 600;
+  color: #222426;
+}
+
+#header .nav-menus {
+  padding:0;
+  margin: 0 0 0 60px;
+}
+#header .nav-menus a {
+  padding: 8px 10px;
+}
+#header .nav-menus a + a {
+  margin-left: 8px;
+}
+#header .nav-menus a.active {
+  color: #000;
+  font-weight: 600;
+}
+
+#main {
+  max-width: 800px;
+  padding: 0 50px 80px;
+  margin:0 auto;
+}
+
+#home .title {
+  margin:0 0 0.5em;
+  padding:0;
+}
+#home .posts {
+  padding:0;
+  margin:0;
+  list-style:none;
+  font-size: 1.2em;
+}
+#home .posts li + li {
+  margin-top: 0.5em;
+}
+#home .posts a {
+  display:block;
+  padding:0.5em 0;
+}
+
+#post {
+  line-height: 1.5;
+  hyphens: auto;
+  word-wrap: break-word;
+}
+#post .title {
+  padding:0;
+  margin:0;
+}
+#post .desc {
+  margin:0.5em 0 2em;
+  padding:0;
+  display:flex;
+  justify-content:end;
+  color:#666;
+}
+#post .desc dd {
+  margin:0;
+}
+#post .desc dt:after {
+  content:':'
+}
+#post .desc dd + dd {
+  margin-left: 1.0em;
+}
+#post .desc dd + dd:before {
+  content: '|';
+  margin-right: 1.0em;
+}
+#post .post-nav {
+  margin-top: 1.0em;
+  border-top: 1px solid #ccc;
+  padding-top: 1.0em;
+}
+#post .post-nav ul{
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+#post .post-nav li + li{
+  margin-top: 0.5em;
+}

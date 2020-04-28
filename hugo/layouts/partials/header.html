@@ -1,0 +1,16 @@
+<body>
+    <header id="header">
+        <nav class="nav">
+            <a class="nav-home" href="{{ "/" | relURL }}">
+                <img src="{{ "/profile-pic.png" | relURL }}"/>
+                <span>dyong1</span>
+            </a>
+            <ul class="nav-menus">
+                {{ $rel := .Permalink | relURL }}
+                <a class="{{ if or (eq $rel "/") (in $rel "/blog") }}active{{ end }}" href="{{ "/" | relURL }}">Blog</a>
+                <a class="{{ if in $rel "/about" }}active{{ end }}" href="{{ "/about" | relURL }}">About</a>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="main">
