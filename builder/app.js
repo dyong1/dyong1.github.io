@@ -7,6 +7,7 @@ const {
     BLOG_CONTENTS_URI,
     HTML_TEMPLATE_PATH,
     DIST_URI,
+    USE_HUGO,
 } = process.env
 
 if (!BLOG_CONTENTS_URI) {
@@ -21,7 +22,7 @@ if (!DIST_URI) {
 
 (async function main() {
     const logger = console
-    const builder = newBuilder({ logger })
+    const builder = newBuilder({ logger, useHugo: !!USE_HUGO })
 
     request(BLOG_CONTENTS_URI, callback)
     async function callback(err, _, html) {

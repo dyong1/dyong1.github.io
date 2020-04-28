@@ -6,7 +6,7 @@ const path = require("path")
 
 const REPEATIVE_DATE_REGEX = /\d{4}-\d{2}-\d{2}/g
 
-exports.newBuilder = function newBuilder({ logger }) {
+exports.newBuilder = function newBuilder({ logger, useHugo }) {
     return {
         exportPostingFilesFromHtml,
     }
@@ -148,11 +148,28 @@ exports.newBuilder = function newBuilder({ logger }) {
                 })
             })
         }
-        await fsp.writeFile(filepath, postingToHtml({ htmlTemplate, $head }, posting))
+
+        await fsp.writeFile(filepath,
+            useHugo ? postingToHugoHtml({ htmlTemplate, $head }, posting) : postingToHtml({ htmlTemplate, $head }, posting),
+            )
         logger.debug(`finished writing posting to file [posting.title=${posting.title}]`)
     }
     function postingFilePath(distPath, p) {
         return path.resolve(distPath, `${p.uri.slice(1)}.html`)
+    }
+    function postingToHugoHtml({ }, posting) {
+        const contentsInnerHtml = cheerio.html(posting.contentNodes)
+        return [
+            hugoFrontMatter(posting),
+            contentsInnerHtml,
+        ].join("")
+    }
+    function hugoFrontMatter(posting) {
+        return `---
+date: ${posting.postedDate}
+title: ${posting.title}
+---
+`
     }
     function postingToHtml({ htmlTemplate, $head }, posting) {
         const headInnerHtml = $head.html()
