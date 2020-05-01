@@ -157,12 +157,49 @@ exports.newBuilder = function newBuilder({ logger, useHugo }) {
     function postingFilePath(distPath, p) {
         return path.resolve(distPath, `${p.uri.slice(1)}.html`)
     }
-    function postingToHugoHtml({ }, posting) {
-        const contentsInnerHtml = cheerio.html(posting.contentNodes)
+    function postingToHugoHtml({ $head }, posting) {
         return [
             hugoFrontMatter(posting),
-            contentsInnerHtml,
+            `<style>${sanitizeCss($head.find("style").html())}</style>`,
+            cheerio.html(sanitizeStyle(posting.contentNodes)),
         ].join("")
+    }
+    function sanitizeStyle(nodes) {
+        const nodesWithStyle = nodes.find("[style]")
+        for (let i=0; i < nodesWithStyle.length; ++i) {
+            const s = nodesWithStyle[i].attribs.style
+            const r = /width:/
+            const m = r.exec(s)
+            if (!m) {
+                delete nodesWithStyle[i].attribs["style"]
+                continue
+            }
+            nodesWithStyle[i].attribs.style = "width:100%;" + s
+                    .replace(/width:/gi, "max-width:")
+                    .replace(/height:/gi, "max-height:")
+                    .replace(/max-max-width:/gi, "max-width:")
+                    .replace(/max-max-height:/gi, "max-height:")
+        }
+        return nodes
+    }
+    function sanitizeCss(original) {
+        return [
+            /font-family:\s*['"][\s\w]+['"];?/gi,
+            /font-size:\s*\d+(pt|px|rem|em);?/gi,
+            /line-height:\s*[\d.]+;?/gi,
+            /padding:(\s*\d+(pt|px|rem|em)\s*)+;?/gi,
+            /padding-top:\s*\d+(pt|px|rem|em);?/gi,
+            /padding-right:\s*\d+(pt|px|rem|em);?/gi,
+            /padding-bottom:\s*\d+(pt|px|rem|em);?/gi,
+            /padding-left:\s*\d+(pt|px|rem|em);?/gi,
+            /margin:(\s*\d+(pt|px|rem|em)\s*)+;?/gi,
+            /margin-top:\s*\d+(pt|px|rem|em);?/gi,
+            /margin-right:\s*\d+(pt|px|rem|em);?/gi,
+            /margin-bottom:\s*\d+(pt|px|rem|em);?/gi,
+            /margin-left:\s*\d+(pt|px|rem|em);?/gi,
+        ].reduce((css, regex) => {
+            return css.replace(regex, "")
+        }, original)
     }
     function hugoFrontMatter(posting) {
         return `---
