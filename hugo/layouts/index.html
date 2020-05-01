@@ -7,11 +7,7 @@
 <section id="home">
   <h1 class="title">Posts</h1>
   <ul class="posts">
-    {{ $hp_length := 10 }}
-    {{ if isset .Site.Params "homepagelength" }}
-      {{ $hp_length = .Site.Params.homepageLength }}
-    {{ end }}
-    {{ range $index, $page := first $hp_length (where site.RegularPages "Section" "in" .Site.Params.mainSections) }}
+    {{ range $index, $page := where .Site.RegularPages "Type" "blog" }}
     <li {{if eq $index 0}}class="first" {{end}}>
       <a href="{{ .Permalink }}" title="{{ .Title }}">{{ .PublishDate.Format "2006-01-02" }} {{ .Title }}</a>
     </li>
