@@ -50,3 +50,4 @@ jobs:
         deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
         publish_dir: ./hugo/public
         publish_branch: master
+        cname: dyong1.com
