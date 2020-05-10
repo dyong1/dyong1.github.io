@@ -99,19 +99,39 @@ exports.newBuilder = function newBuilder({ logger, useHugo }) {
                 logger.info(`ignore record at ${idx} as valid uri is missing`)
                 continue
             }
-            postings.push({
+
+            const posting = {
                 title,
                 titleNode,
                 contentNodes,
                 postedDate,
                 uri,
-            })
+            }
+            if (validatePosting(posting)) {
+                postings.push(posting)
+            }
             currentBegin = nextBegin
             nextBegin = hh[idx + 1]
             idx++
         }
 
         return postings
+    }
+    function validatePosting({
+        title,
+        titleNode,
+        contentNodes,
+        postedDate,
+        uri,
+    }) {
+        const lowerCaseTitle = title.toLowerCase()
+        if (lowerCaseTitle.includes("draft")) {
+            return false
+        }
+        if (lowerCaseTitle.includes("wip")) {
+            return false
+        }
+        return true
     }
     function postingUri(title, postedDate) {
         if (!title) {
