@@ -68,17 +68,23 @@ exports.newBuilder = function newBuilder({ logger, useHugo }) {
         }
 
         const postings = []
-        let currentBegin = hh[0]
-        let nextBegin = hh[1]
-        let idx = 0
-        while (currentBegin) {
+        for (
+            currentBegin = hh[0], nextBegin = hh[1], idx = 0;
+            currentBegin;
+            currentBegin = nextBegin, nextBegin = hh[idx + 1], idx++
+        ) {
             const $currentBegin = $(currentBegin)
             const titleNode = $currentBegin
-            const title = titleNode.text().replace(REPEATIVE_DATE_REGEX, "").trim()
+            let title = titleNode.text().replace(REPEATIVE_DATE_REGEX, "").trim()
             if (!title) {
                 logger.info(`ignore record at ${idx} as valid title is missing`)
                 continue
             }
+            const lowerCaseTitle = title.toLowerCase()
+            if (!lowerCaseTitle.includes("[published]")) {
+                continue
+            }
+            title = title.slice("[published]".length+2)
             const contentNodes = titleNode.nextUntil(nextBegin)
             if (contentNodes.length === 0) {
                 logger.info(`ignore record at ${idx} as valid contents are missing`)
@@ -100,38 +106,16 @@ exports.newBuilder = function newBuilder({ logger, useHugo }) {
                 continue
             }
 
-            const posting = {
+            postings.push({
                 title,
                 titleNode,
                 contentNodes,
                 postedDate,
                 uri,
-            }
-            if (validatePosting(posting)) {
-                postings.push(posting)
-            }
-            currentBegin = nextBegin
-            nextBegin = hh[idx + 1]
-            idx++
+            })
         }
 
         return postings
-    }
-    function validatePosting({
-        title,
-        titleNode,
-        contentNodes,
-        postedDate,
-        uri,
-    }) {
-        const lowerCaseTitle = title.toLowerCase()
-        if (lowerCaseTitle.includes("draft")) {
-            return false
-        }
-        if (lowerCaseTitle.includes("wip")) {
-            return false
-        }
-        return true
     }
     function postingUri(title, postedDate) {
         if (!title) {
